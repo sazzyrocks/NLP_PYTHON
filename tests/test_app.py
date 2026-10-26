@@ -1,8 +1,11 @@
 """Smoke tests and Streamlit AppTest for the web UI."""
 
+from pathlib import Path
 from streamlit.testing.v1 import AppTest
 
 from app import render_skill_badges
+
+APP_PATH = str((Path(__file__).resolve().parent.parent / "app.py").resolve())
 
 
 def test_render_skill_badges():
@@ -18,7 +21,7 @@ def test_render_skill_badges():
 
 def test_app_smoke_test(monkeypatch):
     """Smoke test app initialization with Streamlit AppTest."""
-    at = AppTest.from_file("app.py", default_timeout=30)
+    at = AppTest.from_file(APP_PATH, default_timeout=30)
     at.run()
 
     # App should initialize cleanly without uncaught exceptions
