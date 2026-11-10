@@ -61,3 +61,8 @@ Thumbs.db
 
 # Frontend dependencies & build artifacts
 node_modules/
+
+# Notebook evaluation exports
+evaluation_report.csv
+evaluation_report.json
+
