@@ -28,3 +28,19 @@ def test_app_smoke_test():
     # Check that main elements exist
     assert len(at.sidebar.radio) > 0
     assert len(at.sidebar.text_area) > 0
+
+
+def test_app_demo_run():
+    """Verify demo candidate evaluation renders properly."""
+    at = AppTest.from_file("../app.py", default_timeout=30)
+    at.run()
+    assert not at.exception
+
+    # Click preset button
+    at.sidebar.button[0].click().run()
+    assert not at.exception
+
+    # Click demo comparison button
+    demo_btn = [b for b in at.button if "Run Demo" in b.label][0]
+    demo_btn.click().run()
+    assert not at.exception
