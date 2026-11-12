@@ -1,4 +1,4 @@
-"""Streamlit web application for Semantic Resume Ranker."""
+"""Streamlit web application for Semantic Resume Ranker (Blue & White Theme)."""
 
 import altair as alt
 import pandas as pd
@@ -18,113 +18,202 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# Custom CSS for rich aesthetics, badges, and micro-interactions
+# Custom CSS for Blue & White crisp UI with deep black text
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
     html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #0F172A;
     }
+
+    /* Main container background */
+    .stApp {
+        background-color: #FFFFFF;
+    }
+
+    /* Hero Header Banner (Deep Royal Blue Gradient) */
     .hero-header {
-        background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #4338CA 100%);
-        padding: 28px 32px;
-        border-radius: 14px;
-        color: white;
+        background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #3B82F6 100%);
+        padding: 30px 36px;
+        border-radius: 16px;
+        color: #FFFFFF;
         margin-bottom: 24px;
-        box-shadow: 0 10px 25px -5px rgba(49, 46, 129, 0.25);
+        box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.28), 0 8px 10px -6px rgba(37, 99, 235, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.18);
     }
     .hero-title {
-        font-size: 2.25rem;
+        font-size: 2.3rem;
         font-weight: 800;
         margin: 0;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.025em;
+        color: #FFFFFF;
     }
     .hero-subtitle {
         font-size: 1.05rem;
-        color: #C7D2FE;
+        color: #DBEAFE;
         margin-top: 6px;
         margin-bottom: 0;
+        font-weight: 500;
     }
+
+    /* Pill Badges for Skills */
     .badge-pill {
         display: inline-block;
-        padding: 4px 12px;
+        padding: 5px 13px;
         margin: 3px;
         border-radius: 9999px;
         font-size: 0.82rem;
         font-weight: 600;
-        transition: transform 0.15s ease-in-out;
+        letter-spacing: 0.01em;
+        transition: all 0.15s ease-in-out;
     }
     .badge-pill:hover {
-        transform: scale(1.05);
+        transform: translateY(-1px) scale(1.04);
     }
     .badge-green {
-        background-color: #DCFCE7;
-        color: #166534;
-        border: 1px solid #86EFAC;
+        background-color: #ECFDF5;
+        color: #065F46;
+        border: 1px solid #6EE7B7;
+        box-shadow: 0 1px 3px rgba(6, 95, 70, 0.06);
     }
     .badge-red {
-        background-color: #FEE2E2;
+        background-color: #FEF2F2;
         color: #991B1B;
         border: 1px solid #FCA5A5;
-    }
-    .badge-grey {
-        background-color: #F1F5F9;
-        color: #475569;
-        border: 1px solid #CBD5E1;
+        box-shadow: 0 1px 3px rgba(153, 27, 27, 0.06);
     }
     .badge-blue {
-        background-color: #E0E7FF;
-        color: #3730A3;
-        border: 1px solid #A5B4FC;
+        background-color: #EFF6FF;
+        color: #1E40AF;
+        border: 1px solid #93C5FD;
+        box-shadow: 0 1px 3px rgba(30, 64, 175, 0.06);
     }
+    .badge-grey {
+        background-color: #F8FAFC;
+        color: #334155;
+        border: 1px solid #CBD5E1;
+    }
+
+    /* Modern Metric Cards (Pure White with Royal Blue Top Border) */
     .metric-card {
-        background: white;
-        padding: 18px;
-        border-radius: 12px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        background: #FFFFFF;
+        padding: 20px 18px;
+        border-radius: 14px;
+        border: 1px solid #DBEAFE;
+        border-top: 4px solid #2563EB;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.07);
         text-align: center;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .metric-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.15);
+        border-color: #BFDBFE;
     }
     .metric-card h4 {
         margin: 0;
         font-size: 0.85rem;
-        color: #64748B;
+        color: #475569;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.06em;
+        font-weight: 700;
     }
     .metric-card .metric-val {
-        font-size: 1.8rem;
+        font-size: 2rem;
         font-weight: 800;
         color: #0F172A;
         margin: 6px 0 0 0;
+        letter-spacing: -0.02em;
     }
+    .metric-card .metric-sub {
+        font-size: 0.83rem;
+        color: #334155;
+        margin-top: 4px;
+        font-weight: 500;
+    }
+
+    /* Status Tier Badges */
     .tier-tag {
         display: inline-block;
         font-size: 0.78rem;
         font-weight: 700;
-        padding: 3px 10px;
-        border-radius: 6px;
+        padding: 4px 12px;
+        border-radius: 8px;
         margin-left: 8px;
         vertical-align: middle;
+        letter-spacing: 0.02em;
     }
-    .tier-elite { background: #DCFCE7; color: #15803D; }
-    .tier-strong { background: #DBEAFE; color: #1D4ED8; }
-    .tier-moderate { background: #FEF3C7; color: #B45309; }
-    .tier-low { background: #FEE2E2; color: #B91C1C; }
+    .tier-elite {
+        background: #ECFDF5;
+        color: #047857;
+        border: 1px solid #A7F3D0;
+    }
+    .tier-strong {
+        background: #EFF6FF;
+        color: #1D4ED8;
+        border: 1px solid #BFDBFE;
+    }
+    .tier-moderate {
+        background: #FFFBEB;
+        color: #B45309;
+        border: 1px solid #FDE68A;
+    }
+    .tier-low {
+        background: #FEF2F2;
+        color: #B91C1C;
+        border: 1px solid #FECACA;
+    }
+
+    /* Disclaimer and Info Boxes */
     .disclaimer-box {
-        background: #F8FAFC;
-        border-left: 4px solid #6366F1;
-        padding: 12px 16px;
-        border-radius: 6px;
-        font-size: 0.87rem;
-        color: #475569;
-        margin-bottom: 20px;
+        background: #EFF6FF;
+        border-left: 4px solid #2563EB;
+        padding: 14px 18px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        color: #1E293B;
+        margin-bottom: 22px;
+        border: 1px solid #DBEAFE;
+        border-left-width: 4px;
+        line-height: 1.5;
+    }
+
+    /* Primary Buttons Styling */
+    .stButton > button {
+        background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+        color: #FFFFFF !important;
+        font-weight: 700;
+        border-radius: 10px;
+        border: none;
+        padding: 8px 18px;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        transition: all 0.15s ease-in-out;
+    }
+    .stButton > button:hover {
+        background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%);
+        box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+        transform: translateY(-1px);
+        color: #FFFFFF !important;
+    }
+
+    /* Download Buttons Styling */
+    .stDownloadButton > button {
+        background: #FFFFFF !important;
+        color: #1E40AF !important;
+        border: 1.5px solid #BFDBFE !important;
+        font-weight: 700 !important;
+        border-radius: 10px !important;
+        padding: 8px 16px !important;
+        transition: all 0.15s ease-in-out !important;
+    }
+    .stDownloadButton > button:hover {
+        background: #EFF6FF !important;
+        border-color: #2563EB !important;
+        color: #1D4ED8 !important;
+        transform: translateY(-1px);
     }
     </style>
     """,
@@ -154,7 +243,7 @@ def load_cached_nlp_models():
 def render_skill_badges(skills, badge_type):
     """Render list of skills as styled HTML pill badges."""
     if not skills:
-        return "<span style='color: #94A3B8; font-style: italic;'>None detected</span>"
+        return "<span style='color: #64748B; font-style: italic; font-weight: 500;'>None detected</span>"
     pills = "".join(
         f"<span class='badge-pill badge-{badge_type}'>{skill}</span>"
         for skill in skills
@@ -253,7 +342,8 @@ def main():
         <div class='hero-header'>
             <h1 class='hero-title'>📄 Semantic Resume Ranker</h1>
             <p class='hero-subtitle'>
-                Explainable, multi-factor NLP screening with dense embeddings, skill taxonomies & smart analytics.
+                Explainable, multi-factor NLP screening with dense embeddings,
+                taxonomy phrase matching & smart analytics.
             </p>
         </div>
         """,
@@ -263,8 +353,8 @@ def main():
     st.markdown(
         """
         <div class='disclaimer-box'>
-            🛡️ <strong>Assistive Screening Aid:</strong> Algorithmic scores and skill matches provide an objective
-            baseline for initial triage. They assist human judgment, ensuring transparent and explainable evaluation.
+            🛡️ <strong>Assistive Screening Intelligence:</strong> Algorithmic scores and skill matches provide
+            an objective baseline for candidate triage. Designed to assist human hiring teams with explainable AI.
         </div>
         """,
         unsafe_allow_html=True,
@@ -272,25 +362,48 @@ def main():
 
     # Sidebar inputs
     st.sidebar.header("🎯 Job Description")
+
+    # Sample JD presets
+    sample_backend_jd = (
+        "We are seeking a Senior Full-Stack Python Engineer.\n\n"
+        "Requirements:\n"
+        "- 4+ years building scalable backends with Python, FastAPI, and Django.\n"
+        "- Strong relational database expertise with PostgreSQL and Redis caching.\n"
+        "- Production experience with Docker, Kubernetes, and CI/CD pipelines on AWS.\n"
+        "- Machine Learning knowledge (PyTorch, Scikit-Learn) and REST API design.\n"
+        "- Frontend experience with React and TypeScript is a plus.\n"
+        "- Excellent communication, leadership, and agile collaboration."
+    )
+    sample_data_jd = (
+        "We are looking for a Senior Data Scientist / ML Engineer.\n\n"
+        "Requirements:\n"
+        "- 3+ years in Python, PyTorch, TensorFlow, and Scikit-Learn.\n"
+        "- Experience with NLP transformer models, embeddings, and vector databases.\n"
+        "- Solid SQL, PostgreSQL, and BigQuery data pipeline experience.\n"
+        "- Production deployment with Docker, FastAPI, and GCP/AWS.\n"
+        "- Strong background in statistics, data cleaning, and experimentation."
+    )
+
+    if "jd_text_value" not in st.session_state:
+        st.session_state["jd_text_value"] = sample_backend_jd
+
     jd_mode = st.sidebar.radio("JD Input Format", ["Paste Text", "Upload File"], index=0)
 
     jd_content = ""
     jd_filename = "job_description.txt"
 
     if jd_mode == "Paste Text":
-        sample_jd = (
-            "We are seeking a Senior Full-Stack Python Engineer.\n\n"
-            "Requirements:\n"
-            "- 4+ years building scalable backends with Python, FastAPI, and Django.\n"
-            "- Strong relational database expertise with PostgreSQL and Redis caching.\n"
-            "- Production experience with Docker, Kubernetes, and CI/CD pipelines on AWS.\n"
-            "- Machine Learning knowledge (PyTorch, Scikit-Learn) and REST API design.\n"
-            "- Frontend experience with React and TypeScript is a plus.\n"
-            "- Excellent communication, leadership, and agile collaboration."
-        )
+        preset_cols = st.sidebar.columns(2)
+        if preset_cols[0].button("🐍 Backend JD", use_container_width=True):
+            st.session_state["jd_text_value"] = sample_backend_jd
+            st.rerun()
+        if preset_cols[1].button("📊 ML Data JD", use_container_width=True):
+            st.session_state["jd_text_value"] = sample_data_jd
+            st.rerun()
+
         jd_content = st.sidebar.text_area(
-            "Paste Job Description text here:",
-            value=sample_jd,
+            "Job Description Text:",
+            value=st.session_state["jd_text_value"],
             height=200,
         )
     else:
@@ -321,10 +434,10 @@ def main():
         total_weight = w_semantic + w_skill + w_exp + w_lex
         if total_weight > 0:
             st.caption(
-                f"Effective weights: Semantic: {w_semantic/total_weight:.0%} | "
+                f"Effective: Semantic: {w_semantic/total_weight:.0%} | "
                 f"Skill: {w_skill/total_weight:.0%} | "
                 f"Exp: {w_exp/total_weight:.0%} | "
-                f"Lexical: {w_lex/total_weight:.0%}"
+                f"Lex: {w_lex/total_weight:.0%}"
             )
         else:
             st.error("At least one weight must be greater than zero.")
@@ -418,9 +531,8 @@ def main():
             f"<div class='metric-card'>"
             f"<h4>🏆 Top Candidate</h4>"
             f"<div class='metric-val'>{top_candidate.final_score:.1f}"
-            f"<span style='font-size: 1rem; color: #64748B;'>/100</span></div>"
-            f"<div style='font-size: 0.82rem; color: #475569; margin-top: 4px; "
-            f"overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'>"
+            f"<span style='font-size: 1.1rem; color: #2563EB;'>/100</span></div>"
+            f"<div class='metric-sub' style='overflow: hidden; text-overflow: ellipsis; white-space: nowrap;'>"
             f"{top_candidate.filename}</div>"
             f"</div>",
             unsafe_allow_html=True,
@@ -429,8 +541,9 @@ def main():
         st.markdown(
             f"<div class='metric-card'>"
             f"<h4>📊 Cohort Average</h4>"
-            f"<div class='metric-val'>{avg_score:.1f}<span style='font-size: 1rem; color: #64748B;'>/100</span></div>"
-            f"<div style='font-size: 0.82rem; color: #475569; margin-top: 4px;'>Overall Mean Score</div>"
+            f"<div class='metric-val'>{avg_score:.1f}"
+            f"<span style='font-size: 1.1rem; color: #2563EB;'>/100</span></div>"
+            f"<div class='metric-sub'>Overall Mean Score</div>"
             f"</div>",
             unsafe_allow_html=True,
         )
@@ -438,8 +551,9 @@ def main():
         st.markdown(
             f"<div class='metric-card'>"
             f"<h4>🎯 Avg Skill Match</h4>"
-            f"<div class='metric-val'>{avg_skill_pct:.1f}<span style='font-size: 1rem; color: #64748B;'>%</span></div>"
-            f"<div style='font-size: 0.82rem; color: #475569; margin-top: 4px;'>JD Coverage Ratio</div>"
+            f"<div class='metric-val'>{avg_skill_pct:.1f}"
+            f"<span style='font-size: 1.1rem; color: #2563EB;'>%</span></div>"
+            f"<div class='metric-sub'>JD Coverage Ratio</div>"
             f"</div>",
             unsafe_allow_html=True,
         )
@@ -448,12 +562,12 @@ def main():
             f"<div class='metric-card'>"
             f"<h4>📑 Candidates</h4>"
             f"<div class='metric-val'>{len(results)}</div>"
-            f"<div style='font-size: 0.82rem; color: #475569; margin-top: 4px;'>Total Evaluated</div>"
+            f"<div class='metric-sub'>Total Evaluated</div>"
             f"</div>",
             unsafe_allow_html=True,
         )
 
-    st.markdown("<div style='height: 18px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
 
     # Interactive Navigation Tabs
     tab_leaderboard, tab_deepdive, tab_head2head, tab_jd = st.tabs(
@@ -493,7 +607,7 @@ def main():
         if not filtered_results:
             st.warning("No candidates match the selected filters. Try lowering the threshold or clearing skills.")
         else:
-            # Interactive Factor Comparison Chart
+            # Interactive Factor Comparison Chart with Blue/Emerald palette
             chart_data = []
             for r in filtered_results:
                 chart_data.extend(
@@ -512,7 +626,7 @@ def main():
             chart_df = pd.DataFrame(chart_data)
             bar_chart = (
                 alt.Chart(chart_df)
-                .mark_bar()
+                .mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4)
                 .encode(
                     x=alt.X("Component:N", title=None),
                     y=alt.Y("Score:Q", title="Score (0-100)", scale=alt.Scale(domain=[0, 100])),
@@ -520,13 +634,14 @@ def main():
                         "Component:N",
                         scale=alt.Scale(
                             domain=["Semantic", "Skill Match (%)", "Experience", "Lexical"],
-                            range=["#6366F1", "#10B981", "#F59E0B", "#06B6D4"],
+                            range=["#2563EB", "#059669", "#D97706", "#0284C7"],
                         ),
+                        legend=alt.Legend(title="Factor Component", orient="top"),
                     ),
                     column=alt.Column("Candidate:N", title=None),
                     tooltip=["Candidate", "Component", alt.Tooltip("Score:Q", format=".1f")],
                 )
-                .properties(height=260)
+                .properties(height=280)
             )
             st.altair_chart(bar_chart, use_container_width=True)
 
@@ -617,7 +732,7 @@ def main():
             st.markdown(render_skill_badges(res.missing_skills, "red"), unsafe_allow_html=True)
         with m3:
             st.markdown(f"**Additional Detected Skills ({len(res.extra_skills)}):**")
-            st.markdown(render_skill_badges(res.extra_skills, "grey"), unsafe_allow_html=True)
+            st.markdown(render_skill_badges(res.extra_skills, "blue"), unsafe_allow_html=True)
 
         st.markdown("---")
         st.markdown("#### 💡 Tailoring Feedback & Actionable Gaps")
@@ -681,4 +796,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
