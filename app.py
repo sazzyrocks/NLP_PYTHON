@@ -458,28 +458,76 @@ def main():
         return
 
     # Check if demo resumes should be used when no files are uploaded
-    run_demo = False
-    if not uploaded_resumes:
+    if "demo_mode" not in st.session_state:
+        st.session_state["demo_mode"] = False
+
+    # Reset demo mode if user uploaded actual resumes
+    if uploaded_resumes:
+        st.session_state["demo_mode"] = False
+    elif not st.session_state["demo_mode"]:
         st.markdown("### 💡 Quick Try: Run Sample Benchmark")
         st.write("No resumes uploaded yet. Click below to evaluate two pre-configured candidate profiles:")
         if st.button("🚀 Run Demo Comparison (Strong vs. Weak Match)"):
-            run_demo = True
+            st.session_state["demo_mode"] = True
 
     resume_payloads = []
     if uploaded_resumes:
         for f in uploaded_resumes:
             resume_payloads.append((f.name, f.read()))
-    elif run_demo:
+    elif st.session_state.get("demo_mode"):
+        col_demo_info, col_demo_reset = st.columns([4, 1])
+        with col_demo_info:
+            st.info("💡 **Benchmark Demo Mode Active**: Showing sample profiles (Alex vs. Sam).")
+        with col_demo_reset:
+            if st.button("🔄 Clear Demo", key="reset_demo_btn"):
+                st.session_state["demo_mode"] = False
+                if "cached_ranking" in st.session_state:
+                    del st.session_state["cached_ranking"]
+                st.rerun()
+
         strong_resume = (
             "Alex Morgan\n"
-            "Summary: Senior Full-Stack Python Engineer with 6 years of expertise building resilient backends.\n"
-            "Technical Skills: Python, FastAPI, Django, PostgreSQL, Redis, Docker, Kubernetes, AWS, CI/CD, React, "
-            "TypeScript, PyTorch, REST API\n"
-            "Work Experience: Senior Software Engineer at FinTech Corp.\n"
-            "- Architected microservices with FastAPI and PostgreSQL handling 50k requests per minute.\n"
-            "- Deployed Docker containers via Kubernetes and GitHub Actions CI/CD on AWS.\n"
-            "- Integrated PyTorch ML models to automate financial forecasting, saving 30% calculation time.\n"
-            "Education: B.S. in Computer Science"
+            "Professional Summary\n"
+            "Results-driven Senior Full-Stack Python & ML Engineer with 6+ years of expertise architecting "
+            "high-concurrency distributed backends, robust data pipelines, and production machine learning systems. "
+            "Proven track record leading agile cross-functional engineering teams, deploying containerized cloud "
+            "microservices with Docker and Kubernetes on AWS and GCP, and engineering high-throughput APIs with "
+            "FastAPI, Django, and PostgreSQL. Adept in transformer NLP models, vector databases, statistics, and "
+            "production ML pipelines using PyTorch, TensorFlow, and Scikit-Learn.\n\n"
+            "Technical Skills\n"
+            "- Languages & Frameworks: Python, FastAPI, Django, React, TypeScript, REST API, SQL, GraphQL\n"
+            "- Cloud & DevOps: AWS, Google Cloud (GCP), Docker, Kubernetes, CI/CD, GitHub Actions, Linux, Git\n"
+            "- Databases & Storage: PostgreSQL, Redis, BigQuery, Vector Databases, SQL\n"
+            "- Machine Learning & NLP: PyTorch, TensorFlow, Scikit-Learn, Machine Learning, Natural Language "
+            "Processing (NLP), Embeddings, Statistics, Data Cleaning\n"
+            "- Core Competencies: Agile, Leadership, Communication, Teamwork, Cross-functional Collaboration\n\n"
+            "Work Experience\n"
+            "Lead Full-Stack Python & ML Engineer | CloudScale FinTech Corp. | 2021 - Present\n"
+            "- Architected and scaled distributed backend microservices in Python using FastAPI, Django, and "
+            "PostgreSQL, processing over 50,000 requests per second with 99.99% uptime.\n"
+            "- Implemented distributed Redis caching and optimized complex SQL queries on PostgreSQL and BigQuery, "
+            "slashing API latency by 45% and query execution time by 60%.\n"
+            "- Containerized and orchestrated microservices using Docker and Kubernetes on AWS and GCP, building "
+            "automated CI/CD deployment pipelines saving 15 engineering hours weekly.\n"
+            "- Integrated end-to-end production Machine Learning inference services using PyTorch, TensorFlow, "
+            "and Scikit-Learn for real-time risk modeling, saving $1.8M annually.\n"
+            "- Built NLP semantic search and recommendation engine utilizing transformer embeddings and vector "
+            "databases for high-speed document retrieval across 5M+ active users.\n"
+            "- Mentored 6 software engineers and led agile sprint planning, technical design reviews, and cross-functional "
+            "collaboration with stellar communication and leadership.\n\n"
+            "Senior Software Engineer | Apex Systems | 2018 - 2021\n"
+            "- Developed modern, responsive client dashboards using React, TypeScript, and FastAPI REST APIs, "
+            "boosting daily user engagement by 35%.\n"
+            "- Designed automated data cleaning pipelines and statistical experimentation frameworks, processing "
+            "10M+ daily records with rigorous validation.\n"
+            "- Partnered with product and data teams in an agile environment to deliver 8 high-impact enterprise "
+            "releases ahead of schedule.\n\n"
+            "Technical Projects\n"
+            "Distributed Semantic Search & Retrieval Engine:\n"
+            "- Engineered scalable search microservice using Python, FastAPI, Docker, and AWS, indexing 2M+ vectors "
+            "and providing sub-50ms query latency.\n\n"
+            "Education\n"
+            "Master of Science in Computer Science | Stanford University"
         )
         weak_resume = (
             "Sam Taylor\n"
@@ -498,16 +546,30 @@ def main():
     if not resume_payloads:
         return
 
-    # Execute ranking
-    with st.spinner("Processing documents, parsing sections, and computing semantic embeddings..."):
-        results, errors = rank_resumes(
-            jd_input=jd_content,
-            resumes=resume_payloads,
-            jd_filename=jd_filename,
-            custom_weights=custom_weights,
-            embedder=embedder,
-            skill_extractor=skill_extractor,
-        )
+    # Cache ranking results to prevent re-embedding on every slider/filter change
+    cache_key = (
+        hash(jd_content if isinstance(jd_content, str) else str(jd_content)),
+        tuple((name, len(content)) for name, content in resume_payloads),
+        tuple(sorted(custom_weights.items())),
+    )
+
+    if (
+        "cached_ranking" not in st.session_state
+        or st.session_state.get("ranking_cache_key") != cache_key
+    ):
+        with st.spinner("Processing documents, parsing sections, and computing semantic embeddings..."):
+            results, errors = rank_resumes(
+                jd_input=jd_content,
+                resumes=resume_payloads,
+                jd_filename=jd_filename,
+                custom_weights=custom_weights,
+                embedder=embedder,
+                skill_extractor=skill_extractor,
+            )
+            st.session_state["cached_ranking"] = (results, errors)
+            st.session_state["ranking_cache_key"] = cache_key
+    else:
+        results, errors = st.session_state["cached_ranking"]
 
     if errors:
         for err in errors:

@@ -8,9 +8,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 from src.embedder import SentenceEmbedder, get_embedder
 
 WEIGHTS: Dict[str, float] = {
-    "semantic_score": 0.35,
-    "skill_score": 0.40,
-    "experience_section_score": 0.15,
+    "semantic_score": 0.50,
+    "skill_score": 0.35,
+    "experience_section_score": 0.05,
     "lexical_score": 0.10,
 }
 

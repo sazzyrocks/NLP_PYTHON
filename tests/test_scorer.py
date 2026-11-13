@@ -61,8 +61,8 @@ def test_calculate_final_score_with_skill_score():
         experience_section_score=70.0,
         lexical_score=60.0,
     )
-    # Expected: 80*0.35 + 90*0.40 + 70*0.15 + 60*0.10 = 28 + 36 + 10.5 + 6 = 80.5
-    assert final == 80.5
+    # Expected: 80*0.50 + 90*0.35 + 70*0.05 + 60*0.10 = 40 + 31.5 + 3.5 + 6 = 81.0
+    assert final == 81.0
 
 
 def test_calculate_final_score_renormalization_without_skill_score():
